@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group = 'ua.qa.auto'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testImplementation 'io.rest-assured:rest-assured:5.3.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
+
+}
+
+test {
+    useJUnitPlatform()
+}
