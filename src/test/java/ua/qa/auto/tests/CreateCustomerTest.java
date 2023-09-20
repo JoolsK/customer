@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +14,11 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import ua.qa.auto.model.Customer;
+import ua.qa.auto.model.Loyalty;
 import ua.qa.auto.util.DataGenerator;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreateCustomerTest {
 
@@ -34,6 +39,10 @@ public class CreateCustomerTest {
         customer.setLastName(lastName);
         String phoneNumber = DataGenerator.generatePhoneNumber();
         customer.setPhoneNumber(phoneNumber);
+        Loyalty loyalty = new Loyalty();
+        loyalty.setDiscountRate(1);
+
+        customer.setLoyalty(loyalty);
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
@@ -45,7 +54,7 @@ public class CreateCustomerTest {
                 .body("firstName", Matchers.equalTo(firstName))
                 .body("lastName", Matchers.equalTo(lastName))
                 .body("phoneNumber", Matchers.equalTo(phoneNumber))
-                .body("email", Matchers.equalTo(null))
+                .body("email", Matchers.nullValue())
                 .body("dateOfBirth", Matchers.equalTo(null))
                 .body("loyalty.bonusCardNumber", Matchers.notNullValue())
                 .body("loyalty.active", Matchers.equalTo(true))

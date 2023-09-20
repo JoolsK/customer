@@ -2,8 +2,8 @@ package ua.qa.auto.model;
 
 public class Loyalty {
     private String bonusCardNumber;
-    private Boolean active;
-    private Number discountRate;
+    private boolean active;
+    private double discountRate;
 
     public String getBonusCardNumber() {
         return bonusCardNumber;
@@ -13,19 +13,19 @@ public class Loyalty {
         this.bonusCardNumber = bonusCardNumber;
     }
 
-    public Boolean getActive() {
+    public boolean getActive() {
         return active;
     }
 
-    public void setActive(Boolean active) {
+    public void setActive(boolean active) {
         this.active = active;
     }
 
-    public Number getDiscountRate() {
+    public double getDiscountRate() {
         return discountRate;
     }
 
-    public void setDiscountRate(Number discountRate) {
+    public void setDiscountRate(double discountRate) {
         this.discountRate = discountRate;
     }
 }

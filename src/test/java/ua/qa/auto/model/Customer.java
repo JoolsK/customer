@@ -4,9 +4,9 @@ import java.util.List;
 
 public class Customer {
     private String firstName;
-    private String LastName;
-    private String PhoneNumber;
-    private List<Loyalty> loyalty;
+    private String lastName;
+    private String phoneNumber;
+    private Loyalty loyalty;
 
     public String getFirstName() {
         return firstName;
@@ -17,21 +17,25 @@ public class Customer {
     }
 
     public String getLastName() {
-        return LastName;
+        return lastName;
     }
 
     public void setLastName(String lastName) {
-        LastName = lastName;
+        this.lastName = lastName;
     }
 
     public String getPhoneNumber() {
-        return PhoneNumber;
+        return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
-        PhoneNumber = phoneNumber;
+        this.phoneNumber = phoneNumber;
     }
 
-    public void setLoyaltyList(List<Loyalty> loyalty) {
+    public void setLoyalty(Loyalty loyalty) {this.loyalty = loyalty;
+    }
+
+    public Loyalty getLoyalty() {
+        return loyalty;
     }
 }
