@@ -4,8 +4,9 @@ import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
+
 import org.hamcrest.Matchers;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,12 +14,13 @@ import org.junit.jupiter.api.parallel.Execution;
 import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+
 import ua.qa.auto.model.Customer;
 import ua.qa.auto.model.Loyalty;
 import ua.qa.auto.util.DataGenerator;
+import ua.qa.auto.matcher.DateMatchers;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class CreateCustomerTest {
 
@@ -59,8 +61,8 @@ public class CreateCustomerTest {
                 .body("loyalty.bonusCardNumber", Matchers.notNullValue())
                 .body("loyalty.active", Matchers.equalTo(true))
                 .body("loyalty.discountRate", Matchers.notNullValue())
-                .body("updatedAt", Matchers.notNullValue())
-                .body("createdAt", Matchers.notNullValue());
+                .body("updatedAt", DateMatchers.isToday())
+                .body("createdAt", DateMatchers.isToday());
     }
 
     @Test
@@ -95,5 +97,13 @@ public class CreateCustomerTest {
                 .then()
                 .statusCode(400)
                 .body("errors[0]", Matchers.equalTo("Invalid phoneNumber: expected format +7XXXXXXXXXX"));
+    }
+
+    @Test
+    public void test() {
+        for (int i = 1; i < 60; i++) {
+            System.out.println(DataGenerator.generatePhoneNumber());
+            ArrayList<Integer> hgfhgfh = new ArrayList<>();
+        }
     }
 }
