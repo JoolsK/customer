@@ -20,8 +20,6 @@ import ua.qa.auto.model.Loyalty;
 import ua.qa.auto.util.DataGenerator;
 import ua.qa.auto.matcher.DateMatchers;
 
-import java.util.ArrayList;
-
 public class CreateCustomerTest {
 
     @BeforeAll
@@ -97,13 +95,5 @@ public class CreateCustomerTest {
                 .then()
                 .statusCode(400)
                 .body("errors[0]", Matchers.equalTo("Invalid phoneNumber: expected format +7XXXXXXXXXX"));
-    }
-
-    @Test
-    public void test() {
-        for (int i = 1; i < 60; i++) {
-            System.out.println(DataGenerator.generatePhoneNumber());
-            ArrayList<Integer> hgfhgfh = new ArrayList<>();
-        }
     }
 }
