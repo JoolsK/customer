@@ -16,6 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import ua.qa.auto.model.Customer;
+import ua.qa.auto.model.Customer_old;
 import ua.qa.auto.model.Loyalty;
 import ua.qa.auto.util.DataGenerator;
 import ua.qa.auto.matcher.DateMatchers;
@@ -34,7 +35,7 @@ public class CreateCustomerTest {
             "Петр, Петров",
             "Василий, Васильев"})
     public void sendRequestWithAllMandatoryParams(String firstName, String lastName) {
-        Customer customer = new Customer();
+        Customer_old customer = new Customer_old();
         customer.setFirstName(firstName);
         customer.setLastName(lastName);
         String phoneNumber = DataGenerator.generatePhoneNumber();
@@ -66,7 +67,7 @@ public class CreateCustomerTest {
     @Test
     @DisplayName("POST /customers send request with absent mandatory parameter firstName -> Expected result: HTTP status 400")
     public void sendRequestWithoutMandatoryParameterFirstName() {
-        Customer customer = new Customer();
+        Customer_old customer = new Customer_old();
         customer.setLastName("Тестов");
         String phoneNumber = DataGenerator.generatePhoneNumber();
         customer.setPhoneNumber(phoneNumber);
@@ -83,7 +84,7 @@ public class CreateCustomerTest {
     @Test
     @DisplayName("POST /customers send request with invalid phoneNumber -> Expected result: HTTP status 400")
     public void sendRequestWithPhoneNumberInInvalidPattern() {
-        Customer customer = new Customer();
+        Customer_old customer = new Customer_old();
         customer.setFirstName("Тест");
         customer.setLastName("Тестов");
         customer.setPhoneNumber("+4078369854");
@@ -95,5 +96,75 @@ public class CreateCustomerTest {
                 .then()
                 .statusCode(400)
                 .body("errors[0]", Matchers.equalTo("Invalid phoneNumber: expected format +7XXXXXXXXXX"));
+    }
+
+    @Execution(ExecutionMode.CONCURRENT)
+    @ParameterizedTest(name = "Create customer = {0}")
+    @CsvSource(value = {
+            "Петр, Петров",
+            "Василий, Васильев"})
+    public void requestWithMandatoryFields(String firstName, String lastName) {
+
+        Customer customer = new Customer(firstName, lastName, DataGenerator.generatePhoneNumber());
+
+        Loyalty loyalty = new Loyalty();
+        loyalty.setDiscountRate(1);
+        customer.setLoyalty(loyalty);
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(customer)
+                .post("/customers")
+                .then()
+                .statusCode(201)
+                .body("id", Matchers.notNullValue())
+                .body("firstName", Matchers.equalTo(firstName))
+                .body("lastName", Matchers.equalTo(lastName))
+                .body("phoneNumber", Matchers.equalTo(customer.getPhoneNumber()))
+                .body("email", Matchers.nullValue())
+                .body("dateOfBirth", Matchers.equalTo(null))
+                .body("loyalty.bonusCardNumber", Matchers.notNullValue())
+                .body("loyalty.active", Matchers.equalTo(true))
+                .body("loyalty.discountRate", Matchers.notNullValue())
+                .body("updatedAt", DateMatchers.isToday())
+                .body("createdAt", DateMatchers.isToday());
+    }
+
+    @Execution(ExecutionMode.CONCURRENT)
+    @ParameterizedTest(name = "Create customer = {0}")
+    @CsvSource(value = {
+            "Петр, Петров",
+            "Василий, Васильев"})
+    public void requestWithoutArgs(String firstName, String lastName) {
+
+        Customer customer = new Customer();
+
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+
+        String phoneNumber = DataGenerator.generatePhoneNumber();
+        customer.setPhoneNumber(phoneNumber);
+
+        Loyalty loyalty = new Loyalty();
+        loyalty.setDiscountRate(1);
+        customer.setLoyalty(loyalty);
+
+        RestAssured.given()
+                .contentType(ContentType.JSON)
+                .body(customer)
+                .post("/customers")
+                .then()
+                .statusCode(201)
+                .body("id", Matchers.notNullValue())
+                .body("firstName", Matchers.equalTo(firstName))
+                .body("lastName", Matchers.equalTo(lastName))
+                .body("phoneNumber", Matchers.equalTo(phoneNumber))
+                .body("email", Matchers.nullValue())
+                .body("dateOfBirth", Matchers.equalTo(null))
+                .body("loyalty.bonusCardNumber", Matchers.notNullValue())
+                .body("loyalty.active", Matchers.equalTo(true))
+                .body("loyalty.discountRate", Matchers.notNullValue())
+                .body("updatedAt", DateMatchers.isToday())
+                .body("createdAt", DateMatchers.isToday());
     }
 }

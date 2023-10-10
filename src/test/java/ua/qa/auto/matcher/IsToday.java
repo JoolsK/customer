@@ -12,8 +12,7 @@ public class IsToday extends BaseMatcher<String> {
 
     @Override
     public boolean matches(Object o) {
-        if (o instanceof String) {
-            String timestamp = (String) o;
+        if (o instanceof String timestamp) {
             LocalDateTime dateTimeFromTimestamp = LocalDateTime.parse(timestamp, DATE_TIME_FORMATTER);
             LocalDate dateFromTimestamp = dateTimeFromTimestamp.toLocalDate();
             LocalDate today = LocalDate.now();
@@ -25,9 +24,5 @@ public class IsToday extends BaseMatcher<String> {
     @Override
     public void describeTo(Description description) {
         description.appendText("timestamp should be today");
-    }
-
-    public static IsToday isToday() {
-        return new IsToday();
     }
 }
