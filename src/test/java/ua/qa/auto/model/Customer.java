@@ -1,10 +1,11 @@
 package ua.qa.auto.model;
 
 public class Customer {
-    private String firstName;
+   private String firstName;
     private String lastName;
     private String phoneNumber;
-    private Loyalty loyalty;
+    private String email;
+    private String dateOfBirth;
 
     // Конструктор без аргументов
     public Customer() {
@@ -18,11 +19,12 @@ public class Customer {
     }
 
     // Конструктор со всеми полями
-    public Customer(String firstName, String lastName, String phoneNumber, Loyalty loyalty) {
+    public Customer(String firstName, String lastName, String phoneNumber, String email, String dateOfBirth) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
-        this.loyalty = loyalty;
+        this.email = email;
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getFirstName() {
@@ -49,11 +51,19 @@ public class Customer {
         this.phoneNumber = phoneNumber;
     }
 
-    public Loyalty getLoyalty() {
-        return loyalty;
+    public String getEmail() {
+        return email;
     }
 
-   public void setLoyalty(Loyalty loyalty) {
-        this.loyalty = loyalty;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 }

@@ -1,19 +1,15 @@
 package ua.qa.auto.matcher;
 
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-public class IsToday extends BaseMatcher<String> {
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS");
+public class IsToday extends DateMatcher {
 
     @Override
     public boolean matches(Object o) {
         if (o instanceof String timestamp) {
-            LocalDateTime dateTimeFromTimestamp = LocalDateTime.parse(timestamp, DATE_TIME_FORMATTER);
+            LocalDateTime dateTimeFromTimestamp = parseLocalDateTime(timestamp);
             LocalDate dateFromTimestamp = dateTimeFromTimestamp.toLocalDate();
             LocalDate today = LocalDate.now();
             return today.isEqual(dateFromTimestamp);
@@ -22,7 +18,7 @@ public class IsToday extends BaseMatcher<String> {
     }
 
     @Override
-    public void describeTo(Description description) {
+    public void describeTo(org.hamcrest.Description description) {
         description.appendText("timestamp should be today");
     }
 }

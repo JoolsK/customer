@@ -5,6 +5,7 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 
+import org.hamcrest.BaseMatcher;
 import org.hamcrest.Matchers;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -15,19 +16,15 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import ua.qa.auto.BaseTest;
 import ua.qa.auto.model.Customer;
-import ua.qa.auto.model.Customer_old;
 import ua.qa.auto.model.Loyalty;
 import ua.qa.auto.util.DataGenerator;
 import ua.qa.auto.matcher.DateMatchers;
 
-public class CreateCustomerTest {
+import java.time.LocalDateTime;
 
-    @BeforeAll
-    public static void setUp() {
-        RestAssured.baseURI = "http://localhost:8090";
-        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
-    }
+public class CreateCustomerTest extends BaseTest {
 
     @Execution(ExecutionMode.CONCURRENT)
     @ParameterizedTest(name = "Create customer = {0}")
@@ -35,15 +32,13 @@ public class CreateCustomerTest {
             "Петр, Петров",
             "Василий, Васильев"})
     public void sendRequestWithAllMandatoryParams(String firstName, String lastName) {
-        Customer_old customer = new Customer_old();
+        Customer customer = new Customer();
         customer.setFirstName(firstName);
         customer.setLastName(lastName);
         String phoneNumber = DataGenerator.generatePhoneNumber();
         customer.setPhoneNumber(phoneNumber);
         Loyalty loyalty = new Loyalty();
         loyalty.setDiscountRate(1);
-
-        customer.setLoyalty(loyalty);
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
@@ -67,8 +62,10 @@ public class CreateCustomerTest {
     @Test
     @DisplayName("POST /customers send request with absent mandatory parameter firstName -> Expected result: HTTP status 400")
     public void sendRequestWithoutMandatoryParameterFirstName() {
-        Customer_old customer = new Customer_old();
+        Customer customer = new Customer();
         customer.setLastName("Тестов");
+        customer.setEmail("john.doe@gmail.com");
+        customer.setDateOfBirth("1990-01-12");
         String phoneNumber = DataGenerator.generatePhoneNumber();
         customer.setPhoneNumber(phoneNumber);
 
@@ -84,7 +81,7 @@ public class CreateCustomerTest {
     @Test
     @DisplayName("POST /customers send request with invalid phoneNumber -> Expected result: HTTP status 400")
     public void sendRequestWithPhoneNumberInInvalidPattern() {
-        Customer_old customer = new Customer_old();
+        Customer customer = new Customer();
         customer.setFirstName("Тест");
         customer.setLastName("Тестов");
         customer.setPhoneNumber("+4078369854");
@@ -107,9 +104,7 @@ public class CreateCustomerTest {
 
         Customer customer = new Customer(firstName, lastName, DataGenerator.generatePhoneNumber());
 
-        Loyalty loyalty = new Loyalty();
-        loyalty.setDiscountRate(1);
-        customer.setLoyalty(loyalty);
+        LocalDateTime referenceDateTime = LocalDateTime.now();
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
@@ -127,27 +122,26 @@ public class CreateCustomerTest {
                 .body("loyalty.active", Matchers.equalTo(true))
                 .body("loyalty.discountRate", Matchers.notNullValue())
                 .body("updatedAt", DateMatchers.isToday())
-                .body("createdAt", DateMatchers.isToday());
+                .body("createdAt", DateMatchers.isAfter(referenceDateTime));
     }
+
 
     @Execution(ExecutionMode.CONCURRENT)
     @ParameterizedTest(name = "Create customer = {0}")
     @CsvSource(value = {
-            "Петр, Петров",
-            "Василий, Васильев"})
-    public void requestWithoutArgs(String firstName, String lastName) {
+            "Петр, Петров, petr@petrov.com, 1990-01-12",
+            "Василий, Васильев, vasiliy@vasilev.com, 1990-01-12"})
+    public void requestWithoutArgs(String firstName, String lastName, String email, String dateOfBirth) {
 
         Customer customer = new Customer();
 
         customer.setFirstName(firstName);
         customer.setLastName(lastName);
+        customer.setEmail(email);
+        customer.setDateOfBirth(dateOfBirth);
 
         String phoneNumber = DataGenerator.generatePhoneNumber();
         customer.setPhoneNumber(phoneNumber);
-
-        Loyalty loyalty = new Loyalty();
-        loyalty.setDiscountRate(1);
-        customer.setLoyalty(loyalty);
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
@@ -159,8 +153,8 @@ public class CreateCustomerTest {
                 .body("firstName", Matchers.equalTo(firstName))
                 .body("lastName", Matchers.equalTo(lastName))
                 .body("phoneNumber", Matchers.equalTo(phoneNumber))
-                .body("email", Matchers.nullValue())
-                .body("dateOfBirth", Matchers.equalTo(null))
+                .body("email", Matchers.equalTo(email))
+                .body("dateOfBirth", Matchers.equalTo(dateOfBirth))
                 .body("loyalty.bonusCardNumber", Matchers.notNullValue())
                 .body("loyalty.active", Matchers.equalTo(true))
                 .body("loyalty.discountRate", Matchers.notNullValue())

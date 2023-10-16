@@ -1,23 +1,14 @@
 package ua.qa.auto;
 
 import io.restassured.RestAssured;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CustomerServiceTest {
-
-    @BeforeAll
-    public static void setUp() {
-        RestAssured.baseURI = "http://localhost:8090";
-        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
-    }
+public class CustomerServiceTest extends BaseTest {
 
     @Test
     @DisplayName("GET /customers/filter -> queries for all phoneNumbers")
