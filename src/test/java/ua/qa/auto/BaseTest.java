@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 public class BaseTest {
     @BeforeAll
     public static void setUp() {
-        RestAssured.baseURI = "http://localhost:8090";
+        RestAssured.baseURI = Configuration.getProperty("api.base.url");
         RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
     }
 }

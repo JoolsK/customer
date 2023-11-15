@@ -5,10 +5,14 @@ import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.sound.midi.MidiUnavailableException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CustomerServiceTest extends BaseTest {
+
+    public CustomerServiceTest() throws MidiUnavailableException {
+    }
 
     @Test
     @DisplayName("GET /customers/filter -> queries for all phoneNumbers")

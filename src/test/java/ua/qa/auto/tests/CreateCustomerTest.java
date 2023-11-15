@@ -1,14 +1,10 @@
 package ua.qa.auto.tests;
 
 import io.restassured.RestAssured;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 
-import org.hamcrest.BaseMatcher;
 import org.hamcrest.Matchers;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
@@ -32,10 +28,12 @@ public class CreateCustomerTest extends BaseTest {
             "Петр, Петров",
             "Василий, Васильев"})
     public void sendRequestWithAllMandatoryParams(String firstName, String lastName) {
+
+        String code = "919";
         Customer customer = new Customer();
         customer.setFirstName(firstName);
         customer.setLastName(lastName);
-        String phoneNumber = DataGenerator.generatePhoneNumber();
+        String phoneNumber = DataGenerator.generatePhoneNumber(code);
         customer.setPhoneNumber(phoneNumber);
         Loyalty loyalty = new Loyalty();
         loyalty.setDiscountRate(1);
@@ -62,11 +60,13 @@ public class CreateCustomerTest extends BaseTest {
     @Test
     @DisplayName("POST /customers send request with absent mandatory parameter firstName -> Expected result: HTTP status 400")
     public void sendRequestWithoutMandatoryParameterFirstName() {
+
+        String code = "919";
         Customer customer = new Customer();
         customer.setLastName("Тестов");
         customer.setEmail("john.doe@gmail.com");
         customer.setDateOfBirth("1990-01-12");
-        String phoneNumber = DataGenerator.generatePhoneNumber();
+        String phoneNumber = DataGenerator.generatePhoneNumber(code);
         customer.setPhoneNumber(phoneNumber);
 
         RestAssured.given()
@@ -102,7 +102,8 @@ public class CreateCustomerTest extends BaseTest {
             "Василий, Васильев"})
     public void requestWithMandatoryFields(String firstName, String lastName) {
 
-        Customer customer = new Customer(firstName, lastName, DataGenerator.generatePhoneNumber());
+        String code = "919";
+        Customer customer = new Customer(firstName, lastName, DataGenerator.generatePhoneNumber(code));
 
         LocalDateTime referenceDateTime = LocalDateTime.now();
 
@@ -133,6 +134,7 @@ public class CreateCustomerTest extends BaseTest {
             "Василий, Васильев, vasiliy@vasilev.com, 1990-01-12"})
     public void requestWithoutArgs(String firstName, String lastName, String email, String dateOfBirth) {
 
+        String code = "919";
         Customer customer = new Customer();
 
         customer.setFirstName(firstName);
@@ -140,7 +142,7 @@ public class CreateCustomerTest extends BaseTest {
         customer.setEmail(email);
         customer.setDateOfBirth(dateOfBirth);
 
-        String phoneNumber = DataGenerator.generatePhoneNumber();
+        String phoneNumber = DataGenerator.generatePhoneNumber(code);
         customer.setPhoneNumber(phoneNumber);
 
         RestAssured.given()
