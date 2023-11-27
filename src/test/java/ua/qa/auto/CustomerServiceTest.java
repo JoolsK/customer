@@ -4,25 +4,31 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import ua.qa.auto.config.ConfigurationException;
 
-import javax.sound.midi.MidiUnavailableException;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CustomerServiceTest extends BaseTest {
 
-    public CustomerServiceTest() throws MidiUnavailableException {
-    }
-
     @Test
     @DisplayName("GET /customers/filter -> queries for all phoneNumbers")
     public void getCustomerByPhoneNumber_test1() {
-        String[] phoneNumbers = {
-                "+79991736222",
-                "+79181938009",
-                "+79182520099",
-                "+79288771625"
-        };
+
+        List<String> phoneNumbers = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader("./resources/file/phoneNumbers.csv"))) {
+            String line = reader.readLine();
+            while (line != null) {
+                System.out.println(line);
+                line = reader.readLine();
+                phoneNumbers.add(line);
+            }
+        } catch (IOException e) {
+            throw new ConfigurationException("Error reading a file phoneNumbers.csv", e);
+        }
         List<String> lastNames = new ArrayList<>();
         for (String phoneNumber : phoneNumbers) {
             Response response = RestAssured.given()
@@ -33,7 +39,7 @@ public class CustomerServiceTest extends BaseTest {
                 String lastName = response.path("lastName");
                 lastNames.add(lastName);
             } else {
-                System.out.println("Error for " + phoneNumber);
+                throw new ConfigurationException("Ошибка при запросе номера телефона: " + phoneNumber);
             }
         }
         System.out.println("Customers names: " + lastNames);
@@ -52,7 +58,7 @@ public class CustomerServiceTest extends BaseTest {
                 String lastName = response.path("lastName");
                 lastNames.add(lastName);
             } else
-                break;
+                readereak;
         }
         System.out.println("Customers names: " + lastNames);
     }
@@ -77,7 +83,7 @@ public class CustomerServiceTest extends BaseTest {
                 String lastName = response.path("lastName");
                 lastNames.add(lastName);
             } else
-                break;
+                readereak;
         }
         System.out.println("Customers names: " + lastNames);
     }
@@ -95,7 +101,7 @@ public class CustomerServiceTest extends BaseTest {
                 String lastName = response.path("lastName");
                 lastNames.add(lastName);
             } else if (statusCode == 404) {
-                break;
+                readereak;
             }
         }
         System.out.println("Customers names: " + lastNames);
