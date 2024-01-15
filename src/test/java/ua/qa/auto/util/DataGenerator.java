@@ -2,15 +2,14 @@ package ua.qa.auto.util;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class DataGenerator {
     private DataGenerator() {
     }
 
-    private static List<String> codes = new ArrayList<>(Arrays.asList("919", "918", "999"));
-    private static Random random = new Random();
+    private static final List<String> codes = Arrays.asList("919", "918", "999");
+    private static final Random random = new Random();
 
     public static String generatePhoneNumber() {
         String randomCode = codes.get(random.nextInt(codes.size()));

@@ -17,7 +17,9 @@ import ua.qa.auto.model.Customer;
 import ua.qa.auto.model.Loyalty;
 import ua.qa.auto.util.DataGenerator;
 import ua.qa.auto.matcher.DateMatchers;
+import ua.qa.auto.util.DataLoader;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 public class CreateCustomerTest extends BaseTest {
@@ -27,7 +29,7 @@ public class CreateCustomerTest extends BaseTest {
     @CsvSource(value = {
             "Петр, Петров",
             "Василий, Васильев"})
-    public void sendRequestWithAllMandatoryParams(String firstName, String lastName) {
+    public void sendRequestWithAllMandatoryParams(String firstName, String lastName) throws IOException {
 
         String code = "919";
         Customer customer = new Customer();
@@ -37,10 +39,11 @@ public class CreateCustomerTest extends BaseTest {
         customer.setPhoneNumber(phoneNumber);
         Loyalty loyalty = new Loyalty();
         loyalty.setDiscountRate(1);
+        String body = DataLoader.readFromResources("request/create-customer.json");
 
         RestAssured.given()
                 .contentType(ContentType.JSON)
-                .body(customer)
+                .body(body)
                 .post("/customers")
                 .then()
                 .statusCode(201)

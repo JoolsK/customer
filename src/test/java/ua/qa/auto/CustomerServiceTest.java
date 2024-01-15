@@ -2,13 +2,16 @@ package ua.qa.auto;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ua.qa.auto.config.ConfigurationException;
+import ua.qa.auto.util.DataLoader;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,33 +21,68 @@ public class CustomerServiceTest extends BaseTest {
     @DisplayName("GET /customers/filter -> queries for all phoneNumbers")
     public void getCustomerByPhoneNumber_test1() {
 
-        List<String> phoneNumbers = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader("./resources/file/phoneNumbers.csv"))) {
-            String line = reader.readLine();
-            while (line != null) {
-                System.out.println(line);
-                line = reader.readLine();
-                phoneNumbers.add(line);
+        try {
+            String phoneNumbersData = DataLoader.readFromFile("./src/test/resources/file/phoneNumbers.csv");
+            String[] phoneNumbers = phoneNumbersData.split("\n");
+
+            List<String> lastNames = new ArrayList<>();
+            for (String phoneNumber : phoneNumbers) {
+                Response response = RestAssured.given()
+                        .queryParam("phoneNumber", phoneNumber)
+                        .get("/customers/filter");
+
+                if (response.getStatusCode() == 200) {
+                    String lastName = response.path("lastName");
+                    lastNames.add(lastName);
+                } else {
+                    System.out.println("Error with phone number request: " + phoneNumber);
+                }
             }
+            System.out.println("Фамилии клиентов: " + lastNames);
         } catch (IOException e) {
-            throw new ConfigurationException("Error reading a file phoneNumbers.csv", e);
+            throw new RuntimeException("Ошибка при чтении файла: ", e);
         }
-        List<String> lastNames = new ArrayList<>();
-        for (String phoneNumber : phoneNumbers) {
-            Response response = RestAssured.given()
-                    .queryParam("phoneNumber", phoneNumber)
-                    .get("/customers/filter");
-            int statusCode = response.getStatusCode();
-            if (statusCode == 200) {
-                String lastName = response.path("lastName");
-                lastNames.add(lastName);
-            } else {
-                throw new ConfigurationException("Ошибка при запросе номера телефона: " + phoneNumber);
-            }
-        }
-        System.out.println("Customers names: " + lastNames);
     }
 
+    @Test
+    public void testCreateCustomer() {
+        try {
+            String requestBody = DataLoader.readFromResources("requests/create-customer.json");
+            RestAssured.given()
+                    .contentType("application/json")
+                    .body(requestBody)
+                    .post("/customers/create");
+
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при чтении файла: ", e);
+        }
+    }
+
+    @Test
+    @DisplayName("GET /customers/filter -> queries for all phoneNumbers")
+    public void getCustomerByPhoneNumber_test3213213() {
+        Path path = Path.of("./src/test/resources/file/phoneNumbers.csv");
+        try {
+            String data = Files.readString(path);
+            System.out.println(data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    @DisplayName("GET /customers/filter -> queries for all phoneNumbers")
+    public void getCustomerByPhoneNumber_test4444444() {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("file/phoneNumbers.csv")) {
+            if (input == null) {
+                // throw new ConfigurationException("Can't find " + configurationFilePath);
+            }
+            String data = IOUtils.toString(input, Charset.defaultCharset());
+            System.out.println(data);
+        } catch (IOException ex) {
+            throw new ConfigurationException("Error loading configuration", ex);
+        }
+    }
     @Test
     @DisplayName("GET /customers/{id} -> Request for every second subscriber. The count starts from the first")
     public void testGetCustomersById_test2() {
@@ -58,7 +96,7 @@ public class CustomerServiceTest extends BaseTest {
                 String lastName = response.path("lastName");
                 lastNames.add(lastName);
             } else
-                readereak;
+                break;
         }
         System.out.println("Customers names: " + lastNames);
     }
@@ -83,7 +121,7 @@ public class CustomerServiceTest extends BaseTest {
                 String lastName = response.path("lastName");
                 lastNames.add(lastName);
             } else
-                readereak;
+                break;
         }
         System.out.println("Customers names: " + lastNames);
     }
@@ -101,7 +139,7 @@ public class CustomerServiceTest extends BaseTest {
                 String lastName = response.path("lastName");
                 lastNames.add(lastName);
             } else if (statusCode == 404) {
-                readereak;
+                break;
             }
         }
         System.out.println("Customers names: " + lastNames);
@@ -129,7 +167,7 @@ public class CustomerServiceTest extends BaseTest {
     }
 
     @Test
-    public void test_test(){
+    public void test_test() {
         List<String> a = new ArrayList<>();
         List<String> b = new ArrayList<>();
         System.out.println(a.equals(b));
