@@ -6,6 +6,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ua.qa.auto.config.ConfigurationException;
+import ua.qa.auto.model.Customer;
 import ua.qa.auto.util.DataLoader;
 
 import java.io.*;
@@ -13,49 +14,54 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CustomerServiceTest extends BaseTest {
 
     @Test
-    @DisplayName("GET /customers/filter -> queries for all phoneNumbers")
-    public void getCustomerByPhoneNumber_test1() {
+    public void generic_test() {
+        List<Customer> cusList = new ArrayList<>();
+        cusList.add(new Customer("Sidor", "Sidorov", "79801234548"));
+        cusList.add(new Customer("Ivan", "Ivanov", "79801234578"));
+        cusList.add(new Customer("Petr", "Petrov", "79801234568"));
+        cusList.add(new Customer("Andrey", "Andreev", "79801234518"));
 
-        try {
-            String phoneNumbersData = DataLoader.readFromFile("./src/test/resources/file/phoneNumbers.csv");
-            String[] phoneNumbers = phoneNumbersData.split("\n");
+        Collections.sort(cusList);
 
-            List<String> lastNames = new ArrayList<>();
-            for (String phoneNumber : phoneNumbers) {
-                Response response = RestAssured.given()
-                        .queryParam("phoneNumber", phoneNumber)
-                        .get("/customers/filter");
-
-                if (response.getStatusCode() == 200) {
-                    String lastName = response.path("lastName");
-                    lastNames.add(lastName);
-                } else {
-                    System.out.println("Error with phone number request: " + phoneNumber);
-                }
-            }
-            System.out.println("Фамилии клиентов: " + lastNames);
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка при чтении файла: ", e);
+        for (Customer customer : cusList) {
+            System.out.println(customer.getLastName());
         }
     }
 
     @Test
-    public void testCreateCustomer() {
-        try {
-            String requestBody = DataLoader.readFromResources("requests/create-customer.json");
-            RestAssured.given()
-                    .contentType("application/json")
-                    .body(requestBody)
-                    .post("/customers/create");
+    @DisplayName("GET /customers/filter -> queries for all phoneNumbers")
+    public void getCustomerByPhoneNumber_test1() {
 
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка при чтении файла: ", e);
+        List<String> phoneNumbers = DataLoader.readFromFile("./src/test/resources/file/phoneNumbers.csv");
+        List<String> lastNames = new ArrayList<>();
+        for (String phoneNumber : phoneNumbers) {
+            Response response = RestAssured.given()
+                    .queryParam("phoneNumber", phoneNumber)
+                    .get("/customers/filter");
+            int statusCode = response.getStatusCode();
+            if (statusCode == 200) {
+                String lastName = response.path("lastName");
+                lastNames.add(lastName);
+            } else {
+                throw new ConfigurationException("Ошибка при запросе номера телефона: " + phoneNumber);
+            }
         }
+        System.out.println("Customers names: " + lastNames);
+    }
+
+    @Test
+    public void testCreateCustomer() {
+        String requestBody = DataLoader.readFromResources("./requests/create-customer.json");
+        RestAssured.given()
+                .contentType("application/json")
+                .body(requestBody)
+                .get("/customers/create");
     }
 
     @Test
@@ -83,6 +89,7 @@ public class CustomerServiceTest extends BaseTest {
             throw new ConfigurationException("Error loading configuration", ex);
         }
     }
+
     @Test
     @DisplayName("GET /customers/{id} -> Request for every second subscriber. The count starts from the first")
     public void testGetCustomersById_test2() {

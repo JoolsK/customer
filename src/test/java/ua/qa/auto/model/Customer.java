@@ -1,6 +1,6 @@
 package ua.qa.auto.model;
 
-public class Customer {
+public class Customer implements Comparable<Customer>{
    private String firstName;
     private String lastName;
     private String phoneNumber;
@@ -65,5 +65,10 @@ public class Customer {
 
     public void setDateOfBirth(String dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
+    }
+
+    @Override
+    public int compareTo(Customer customer) {
+        return lastName.compareTo(customer.lastName);
     }
 }

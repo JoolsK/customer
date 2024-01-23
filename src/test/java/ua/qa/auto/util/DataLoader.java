@@ -1,27 +1,36 @@
 package ua.qa.auto.util;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class DataLoader {
-
-    public static String readFromFile(String path) throws IOException {
-        return new String(Files.readAllBytes(Paths.get(path)));
+    public static List<String> readFromFile(String filePath) {
+        List<String> phoneNumbers = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line = reader.readLine();
+            while (line != null) {
+                System.out.println(line);
+                String[] result = line.split("/");
+                for (String token:result) {
+                    System.out.println(token);
+                }
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при чтении файла: ", e);
+        }
+        return phoneNumbers;
     }
 
-    public static String readFromResources(String resourcePath) throws IOException {
+    public static String readFromResources(String resourcePath) {
         try (InputStream inputStream = DataLoader.class.getClassLoader().getResourceAsStream(resourcePath)) {
             if (inputStream == null) {
-                throw new FileNotFoundException("Resource not found: " + resourcePath);
+                throw new RuntimeException("Resource not found: " + resourcePath);
             }
             return new String(inputStream.readAllBytes());
+        } catch (IOException e) {
+            throw new RuntimeException("Ошибка при чтении файла: ", e);
         }
     }
 }
